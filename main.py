@@ -24,10 +24,12 @@ import xml.etree.ElementTree as ET
 #전역변수
 WIDTH = 1000
 HEIGHT = 800
+TEXT = "None"
 flag = False
 dirName = "./a"
 num = []
 Resume_image = ".test.jpg"
+BOOK_MARK = False
 
 
 class Thread(QThread):
@@ -48,6 +50,8 @@ class Thread(QThread):
         global flag
         global num
         global Resume_image
+        global BOOK_MARK
+        global TEXT
         #image dir
         image_dir = dirName+ "/image/"
         xml_dir =  dirName + "/xml/"
@@ -60,7 +64,7 @@ class Thread(QThread):
             print("No xml dir")
 
         #image file list
-        image_list = os.listdir(image_dir)
+        self.image_list = os.listdir(image_dir)
 
         #for resume
         if os.path.isfile("resume.txt"):
@@ -68,72 +72,94 @@ class Thread(QThread):
             Resume_image = f.readline()
             self.resume = 1
             f.close()
+        while(self.power):
+            for image in self.image_list:
+                #resume
+                if image == Resume_image and self.check == 0 and self.resume == 1:
+                    self.check = 1
+                    num = []
+                    image_file = image_dir + image
+                    xml_file = xml_dir + image[:-3] + "xml"
+                    qPixmapFileVar = self.loadImageFromFile(image_file)
 
-        for image in image_list:
-            #resume
-            if image == Resume_image and self.check == 0 and self.resume == 1:
-                self.check = 1
-                num = []
-                image_file = image_dir + image
-                xml_file = xml_dir + image[:-3] + "xml"
-                qPixmapFileVar = self.loadImageFromFile(image_file)
+                    #draw rectangle
+                    self.painterInstance = QPainter(qPixmapFileVar)
+                    self.penRectangle = QPen(Qt.red)
+                    self.penRectangle.setWidth(1)
+                    self.painterInstance.setPen(self.penRectangle)
 
-                #draw rectangle
-                self.painterInstance = QPainter(qPixmapFileVar)
-                self.penRectangle = QPen(Qt.red)
-                self.penRectangle.setWidth(1)
-                self.painterInstance.setPen(self.penRectangle)
+                    number = self.parse_xml(xml_file,image_file)
 
-                number = self.parse_xml(xml_file,image_file)
-
-                self.lbl.setPixmap(self.qPixmapFileVar)
-                self.lbl.setAlignment(Qt.AlignCenter)
-                while(self.power):
-                    if flag is True:
-                        self.threadEvent_check.emit(int(number))
-                        self.parse_xml(xml_file,image_file, num)
+                    self.lbl.setPixmap(self.qPixmapFileVar)
+                    self.lbl.setAlignment(Qt.AlignCenter)
+                    while(self.power):
+                        if BOOK_MARK is True:
+                            result = self.check_bookmark()
+                            if result == True:
+                                self.resume = 1
+                                self.check = 0
+                                Resume_image = TEXT
+                                break
+                            else:
+                                BOOK_MARK = False
+                        if flag is True:
+                            self.threadEvent_check.emit(int(number))
+                            self.parse_xml(xml_file,image_file, num)
+                            break
+                    BOOK_MARK = False
+                    self.threadEvent_reset.emit()
+                    flag = False
+                    if self.power == False:
+                        #exit thread
+                        #for resume
+                        f = open("resume.txt", "w")
+                        f.write(image)
+                        f.close()
                         break
-                self.threadEvent_reset.emit()
-                flag = False
-                if self.power == False:
-                    #exit thread
-                    #for resume
-                    f = open("resume.txt", "w")
-                    f.write(image)
-                    f.close()
-                    break
-            elif self.check == 0 and self.resume == 1:
-                pass
-            else:
-                num = []
-                image_file = image_dir + image
-                xml_file = xml_dir + image[:-3] + "xml"
-                qPixmapFileVar = self.loadImageFromFile(image_file)
+                elif self.check == 0 and self.resume == 1:
+                    pass
+                else:
+                    num = []
+                    image_file = image_dir + image
+                    xml_file = xml_dir + image[:-3] + "xml"
+                    qPixmapFileVar = self.loadImageFromFile(image_file)
 
-                #draw rectangle
-                self.painterInstance = QPainter(qPixmapFileVar)
-                self.penRectangle = QPen(Qt.red)
-                self.penRectangle.setWidth(1)
-                self.painterInstance.setPen(self.penRectangle)
+                    #draw rectangle
+                    self.painterInstance = QPainter(qPixmapFileVar)
+                    self.penRectangle = QPen(Qt.red)
+                    self.penRectangle.setWidth(1)
+                    self.painterInstance.setPen(self.penRectangle)
 
-                number = self.parse_xml(xml_file,image_file)
+                    number = self.parse_xml(xml_file,image_file)
 
-                self.lbl.setPixmap(self.qPixmapFileVar)
-                self.lbl.setAlignment(Qt.AlignCenter)
-                while(self.power):
-                    if flag is True:
-                        self.threadEvent_check.emit(int(number))
-                        self.parse_xml(xml_file,image_file, num)
+                    self.lbl.setPixmap(self.qPixmapFileVar)
+                    self.lbl.setAlignment(Qt.AlignCenter)
+                    while(self.power):
+                        if BOOK_MARK is True:
+                            result = self.check_bookmark()
+                            if result == True:
+                                self.resume = 1
+                                self.check = 0
+                                Resume_image = TEXT
+                                break
+                            else:
+                                BOOK_MARK = False
+                        if flag is True:
+                            self.threadEvent_check.emit(int(number))
+                            self.parse_xml(xml_file,image_file, num)
+                            break
+                    BOOK_MARK = False
+                    self.threadEvent_reset.emit()
+                    flag = False
+                    if self.power == False:
+                        #exit thread
+                        #for resume
+                        f = open("resume.txt", "w")
+                        f.write(image)
+                        f.close()
                         break
-                self.threadEvent_reset.emit()
-                flag = False
-                if self.power == False:
-                    #exit thread
-                    #for resume
-                    f = open("resume.txt", "w")
-                    f.write(image)
-                    f.close()
-                    break
+            if self.check == 1:
+                break
 
         #done
         print("Done")
@@ -141,6 +167,13 @@ class Thread(QThread):
         self.lbl.setPixmap(self.qPixmapFileVar)
         self.lbl.setAlignment(Qt.AlignCenter)
 
+    def check_bookmark(self):
+        for image in self.image_list:
+            if image == TEXT:
+                print("pass")
+                return True
+        print("no that image")
+        return False
 
 
     def loadImageFromFile(self,image_file):
@@ -218,12 +251,27 @@ class MyApp(QMainWindow):
         filemenu = menubar.addMenu('&File')
         filemenu.addAction(loadingAction)
 
+        #bookmark
+        label2 = QLabel('이동하고싶은 이미지 제목을 입력하시오.', self)
+        label2.move(1300,780)
+        label2.resize(250,20)
+        self.result = QLabel('', self)
+        self.result.move(1300,835)
+        self.result.resize(250,20)
+        self.bookmark_line = QLineEdit(self)
+        self.bookmark_line.move(1300, 800)
+        self.bookmark_line.resize(200,30)
+        self.button = QPushButton(self)
+        self.button.move(1520, 800)
+        self.button.setText('go')
+        self.button.resize(40, 30)
+        self.button.clicked.connect(self.button_event)
 
         #delete resume file
         btn2 = QPushButton('Delete resume', self)
         btn2.setToolTip('This is a <b>delete resume information button</b> widget')
-        btn2.move(1300, 850)
-        btn2.resize(200,100)
+        btn2.move(1300, 860)
+        btn2.resize(200,70)
         btn2.clicked.connect(self.delete_resume)
 
         ##status bar
@@ -274,6 +322,13 @@ class MyApp(QMainWindow):
         self.setFixedSize(1600, 1000)
         self.center()
         self.show()
+
+    def button_event(self):
+        global BOOK_MARK
+        global TEXT
+        TEXT = self.bookmark_line.text()  # line_edit text 값 가져오기
+        self.result.setText(TEXT)
+        BOOK_MARK = True
 
     def flag(self):
         global flag
