@@ -67,11 +67,41 @@ class Thread(QThread):
             f = open("resume.txt", "r")
             Resume_image = f.readline()
             self.resume = 1
+            f.close()
 
         for image in image_list:
             #resume
             if image == Resume_image and self.check == 0 and self.resume == 1:
                 self.check = 1
+                num = []
+                image_file = image_dir + image
+                xml_file = xml_dir + image[:-3] + "xml"
+                qPixmapFileVar = self.loadImageFromFile(image_file)
+
+                #draw rectangle
+                self.painterInstance = QPainter(qPixmapFileVar)
+                self.penRectangle = QPen(Qt.red)
+                self.penRectangle.setWidth(1)
+                self.painterInstance.setPen(self.penRectangle)
+
+                number = self.parse_xml(xml_file,image_file)
+
+                self.lbl.setPixmap(self.qPixmapFileVar)
+                self.lbl.setAlignment(Qt.AlignCenter)
+                while(self.power):
+                    if flag is True:
+                        self.threadEvent_check.emit(int(number))
+                        self.parse_xml(xml_file,image_file, num)
+                        break
+                self.threadEvent_reset.emit()
+                flag = False
+                if self.power == False:
+                    #exit thread
+                    #for resume
+                    f = open("resume.txt", "w")
+                    f.write(image)
+                    f.close()
+                    break
             elif self.check == 0 and self.resume == 1:
                 pass
             else:
