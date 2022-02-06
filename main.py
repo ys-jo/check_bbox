@@ -10,7 +10,7 @@ etc...
 추가된 기능
 북마크 (resume)
 bbox없을 시 xml, image 삭제
-last update : 22.02.04 by ysjo
+last update : 22.02.07 by ysjo
 """
 
 #import
@@ -211,7 +211,7 @@ class Thread(QThread):
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(x_min * scaled_w, y_min * scaled_h, (x_max - x_min) * scaled_w,
                                               (y_max - y_min) * scaled_h)
-                    self.painterInstance.drawText(QPoint(x_min * scaled_w, y_min * scaled_h), str(number))
+                    self.painterInstance.drawText(QPoint(x_min * scaled_w, ((y_min * scaled_h)+(y_max * scaled_h))/2), str(number))
 
                     number += 1
 
