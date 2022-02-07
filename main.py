@@ -219,11 +219,11 @@ class Thread(QThread):
                     y_min = float(k.find("ymin").text)
                     x_max = float(k.find("xmax").text)
                     y_max = float(k.find("ymax").text)
-                    self.painterInstance.drawRect(x_min * scaled_w, y_min * scaled_h, (x_max - x_min) * scaled_w,
-                                              (y_max - y_min) * scaled_h)
-                    self.painterInstance.drawText(QPoint(x_min * scaled_w, ((y_min * scaled_h)+(y_max * scaled_h))/2), str(number)) #number
+                    self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
+                                              int((y_max - y_min) * scaled_h))
+                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w), int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
                     self.painterInstance.drawText(
-                        QPoint(x_min * scaled_w, ((y_max * scaled_h))), str(label))  # class
+                        QPoint(int(x_min * scaled_w), int(y_max * scaled_h)), str(label))  # class
 
                     number += 1
 
@@ -264,25 +264,25 @@ class MyApp(QMainWindow):
 
         #bookmark
         label2 = QLabel('이동하고싶은 이미지 제목을 입력하시오.', self)
-        label2.move(WIDTH*0.88,HEIGHT*0.8)
-        label2.resize(WIDTH*0.12,HEIGHT*0.02)
+        label2.move(int(WIDTH*0.88), int(HEIGHT*0.8))
+        label2.resize(int(WIDTH*0.12), int(HEIGHT*0.02))
         self.result = QLabel('', self)
-        self.result.move(WIDTH*0.88,HEIGHT*0.85)
-        self.result.resize(WIDTH*0.1,HEIGHT*0.05)
+        self.result.move(int(WIDTH*0.88), int(HEIGHT*0.85))
+        self.result.resize(int(WIDTH*0.1), int(HEIGHT*0.05))
         self.bookmark_line = QLineEdit(self)
-        self.bookmark_line.move(WIDTH*0.88, HEIGHT*0.82)
-        self.bookmark_line.resize(WIDTH*0.1,HEIGHT*0.03)
+        self.bookmark_line.move(int(WIDTH*0.88), int(HEIGHT*0.82))
+        self.bookmark_line.resize(int(WIDTH*0.1) ,int(HEIGHT*0.03))
         self.button = QPushButton(self)
-        self.button.move(WIDTH*0.98, HEIGHT*0.82)
+        self.button.move(int(WIDTH*0.98), int(HEIGHT*0.82))
         self.button.setText('go')
-        self.button.resize(WIDTH*0.02, HEIGHT*0.03)
+        self.button.resize(int(WIDTH*0.02), int(HEIGHT*0.03))
         self.button.clicked.connect(self.button_event)
 
         #delete resume file
         btn2 = QPushButton('Delete resume', self)
         btn2.setToolTip('This is a <b>delete resume information button</b> widget')
-        btn2.move(WIDTH*0.88, HEIGHT*0.88)
-        btn2.resize(WIDTH*0.1,HEIGHT*0.05)
+        btn2.move(int(WIDTH*0.88), int(HEIGHT*0.88))
+        btn2.resize(int(WIDTH*0.1), int(HEIGHT*0.05))
         btn2.clicked.connect(self.delete_resume)
 
         ##status bar
@@ -290,23 +290,23 @@ class MyApp(QMainWindow):
 
         #QLabel - for loading image
         self.lbl = QLabel(self)
-        self.lbl.setGeometry(30,30,WIDTH*0.75,HEIGHT*0.8)
+        self.lbl.setGeometry(30, 30, int(WIDTH*0.75), int(HEIGHT*0.8))
         self.qPixmapFileVar = QPixmap()
         self.qPixmapFileVar.load("eyenix.png")
-        self.qPixmapFileVar = self.qPixmapFileVar.scaled(WIDTH*0.75,HEIGHT*0.8)
+        self.qPixmapFileVar = self.qPixmapFileVar.scaled(int(WIDTH*0.75), int(HEIGHT*0.8))
         self.lbl.setPixmap(self.qPixmapFileVar)
         self.lbl.setAlignment(Qt.AlignCenter)
 
         #button for save & next
         btn = QPushButton('SAVE & NEXT', self)
         btn.setToolTip('This is a <b>SAVE & Next button</b> widget')
-        btn.move(30, HEIGHT*0.85)
-        btn.resize(WIDTH*0.75,HEIGHT*0.1)
+        btn.move(30, int(HEIGHT*0.85))
+        btn.resize(int(WIDTH*0.75), int(HEIGHT*0.1))
         btn.clicked.connect(self.flag)
 
         #for warning
         label1 = QLabel('체크하면 해당 라벨은 삭제됩니다.', self)
-        label1.move(WIDTH*0.8, 30)
+        label1.move(int(WIDTH*0.8), 30)
         label1.resize(300,20)
 
         #for thread
@@ -315,11 +315,11 @@ class MyApp(QMainWindow):
         #for checkbox(label)
         for i in range(0, 22):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
-            globals()['self.cb_{}'.format(i)].move(WIDTH*0.8, 50 + i * 40)
+            globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.8), 50 + i * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
         for i in range(22, 40):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
-            globals()['self.cb_{}'.format(i)].move(WIDTH*0.9, 50 + (i-22) * 40)
+            globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.9), 50 + (i-22) * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
 
         #for qthread signal
