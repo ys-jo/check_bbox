@@ -58,18 +58,18 @@ class Thread(QThread):
         global TEXT
         global TOTAL
         #image dir
-        image_dir = dirName+ "/image/"
-        xml_dir =  dirName + "/xml/"
+        self.image_dir = dirName+ "/image/"
+        self.xml_dir =  dirName + "/xml/"
 
         #check dir exist
-        if not os.path.isdir(image_dir):
+        if not os.path.isdir(self.image_dir):
             print("No image dir")
 
-        if not os.path.isdir(xml_dir):
+        if not os.path.isdir(self.xml_dir):
             print("No xml dir")
 
         #image file list
-        self.image_list = os.listdir(image_dir)
+        self.image_list = os.listdir(self.image_dir)
 
         #for resume
         if os.path.isfile("resume.txt"):
@@ -83,8 +83,8 @@ class Thread(QThread):
                 if image == Resume_image and self.check == 0 and self.resume == 1:
                     self.check = 1
                     num = []
-                    image_file = image_dir + image
-                    xml_file = xml_dir + image[:-3] + "xml"
+                    image_file = self.image_dir + image
+                    xml_file = self.xml_dir + image[:-3] + "xml"
                     qPixmapFileVar = self.loadImageFromFile(image_file)
 
                     #draw rectangle
@@ -127,8 +127,8 @@ class Thread(QThread):
                     pass
                 else:
                     num = []
-                    image_file = image_dir + image
-                    xml_file = xml_dir + image[:-3] + "xml"
+                    image_file = self.image_dir + image
+                    xml_file = self.xml_dir + image[:-3] + "xml"
                     qPixmapFileVar = self.loadImageFromFile(image_file)
 
                     #draw rectangle
@@ -177,7 +177,8 @@ class Thread(QThread):
         self.lbl.setAlignment(Qt.AlignCenter)
 
     def check_bookmark(self):
-        for image in self.image_list:
+        image_list = os.listdir(self.image_dir)
+        for image in image_list:
             if image == TEXT:
                 print("pass")
                 return True
@@ -322,6 +323,9 @@ class MyApp(QMainWindow):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
             globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.9), 50 + (i-22) * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
+        globals()['self.cb_all'] = QCheckBox("all deleted", self)
+        globals()['self.cb_all'].move(int(WIDTH * 0.8), 50 + 23 * 40)
+        globals()['self.cb_all'].resize(100, 30)
 
         #for qthread signal
         self.x.threadEvent_check.connect(self.threadEventHandler_check)
@@ -366,11 +370,16 @@ class MyApp(QMainWindow):
                 num.remove(i)
             else:
                 pass
+        if globals()['self.cb_all'].isChecked():
+            for i in range(0, number + 1):
+                num.append(i)
 
     def threadEventHandler_reset(self):
         for i in range(0, 40):
             if(globals()['self.cb_{}'.format(i)].isChecked() == True):
                 globals()['self.cb_{}'.format(i)].toggle()
+            if(globals()['self.cb_all'].isChecked() == True):
+                globals()['self.cb_all'].toggle()
 
     def threadEventHandler_exit(self):
         if self.x.isRunning():
