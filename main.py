@@ -2,8 +2,8 @@
 """
 
 추가적으로 업데이트 되어야할 사항
-예외처리
-label표시
+예외처리 (잘못 디렉토리 열었을 때 꺼지는 현상) etc,,
+label수정 가능하도록?
 코드정리(필요없는 코드 삭제 및 합치기)
 etc...
 
@@ -221,7 +221,6 @@ class Thread(QThread):
         tree.write(xml_file)
 
         #delete if no label in here
-        print(number)
         if len(num) >= number:
             print("Delete file",xml_file,image_file)
             os.remove(xml_file)
