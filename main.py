@@ -5,6 +5,7 @@
 예외처리 (잘못 디렉토리 열었을 때 꺼지는 현상) etc,,
 label수정 가능하도록?
 코드정리(필요없는 코드 삭제 및 합치기)
+global변수 제거
 etc...
 
 추가된 기능
@@ -108,7 +109,7 @@ class Thread(QThread):
                                 BOOK_MARK = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
-                            time.sleep(0.1)
+                            time.sleep(0.1) #for sync global variable
                             self.parse_xml(xml_file,image_file,num)
                             TOTAL = TOTAL + 1
                             break
@@ -152,7 +153,7 @@ class Thread(QThread):
                                 BOOK_MARK = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
-                            time.sleep(0.1)
+                            time.sleep(0.1)#for sync global variable
                             self.parse_xml(xml_file,image_file,num)
                             TOTAL = TOTAL + 1
                             break
@@ -189,7 +190,7 @@ class Thread(QThread):
         #QPixmap 객체 생성 후 이미지 파일을 이용하여 QPixmap에 사진 데이터 Load하고, Label을 이용하여 화면에 표시
         self.qPixmapFileVar = QPixmap()
         self.qPixmapFileVar.load(image_file)
-        self.qPixmapFileVar = self.qPixmapFileVar.scaled(WIDTH, HEIGHT)
+        self.qPixmapFileVar = self.qPixmapFileVar.scaled(int(WIDTH*0.75), int(HEIGHT*0.75))
         print(image_file)
         return self.qPixmapFileVar
 
@@ -200,8 +201,8 @@ class Thread(QThread):
         size = root.find('size')
         width = size.find('width').text
         height = size.find('height').text
-        scaled_w = WIDTH / float(width)
-        scaled_h = HEIGHT / float(height)
+        scaled_w = WIDTH*0.75 / float(width)
+        scaled_h = HEIGHT*0.75 / float(height)
         objs = root.findall('object')
         number = 0
         if not num == [-1]:
