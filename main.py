@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import xml.etree.ElementTree as ET
+import time
 
 #전역변수
 WIDTH = 1000
@@ -104,7 +105,8 @@ class Thread(QThread):
                                 BOOK_MARK = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
-                            self.parse_xml(xml_file,image_file, num)
+                            time.sleep(0.1)
+                            self.parse_xml(xml_file,image_file,num)
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -146,7 +148,8 @@ class Thread(QThread):
                                 BOOK_MARK = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
-                            self.parse_xml(xml_file,image_file, num)
+                            time.sleep(0.1)
+                            self.parse_xml(xml_file,image_file,num)
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -185,7 +188,7 @@ class Thread(QThread):
         print(image_file)
         return self.qPixmapFileVar
 
-    def parse_xml(self,xml_file, image_file, num=[-1]):
+    def parse_xml(self,xml_file, image_file, num = [-1]):
         # parsing xml file in object inform
         tree = ET.parse(xml_file)
         root = tree.getroot()
@@ -196,6 +199,8 @@ class Thread(QThread):
         scaled_h = HEIGHT / float(height)
         objs = root.findall('object')
         number = 0
+        if not num == [-1]:
+            print("delete label:", num)
         for bboxs in objs:
             if number in num:
                 root.remove(bboxs)
@@ -341,6 +346,7 @@ class MyApp(QMainWindow):
 
     @pyqtSlot(int)
     def threadEventHandler_check(self, number):
+        global num
         for i in range(0, number + 1):
             if globals()['self.cb_{}'.format(i)].isChecked() and i not in num:
                 num.append(i)
@@ -350,7 +356,6 @@ class MyApp(QMainWindow):
                 num.remove(i)
             else:
                 pass
-        print("delete label:", num)
 
     def threadEventHandler_reset(self):
         for i in range(0, 40):
