@@ -194,7 +194,7 @@ class Thread(QThread):
         print(image_file)
         return self.qPixmapFileVar
 
-    def parse_xml(self,xml_file, image_file, num = [-1]):
+    def parse_xml(self,xml_file, image_file, num = []):
         # parsing xml file in object inform
         tree = ET.parse(xml_file)
         root = tree.getroot()
