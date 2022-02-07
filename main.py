@@ -211,7 +211,9 @@ class Thread(QThread):
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(x_min * scaled_w, y_min * scaled_h, (x_max - x_min) * scaled_w,
                                               (y_max - y_min) * scaled_h)
-                    self.painterInstance.drawText(QPoint(x_min * scaled_w, ((y_min * scaled_h)+(y_max * scaled_h))/2), str(number))
+                    self.painterInstance.drawText(QPoint(x_min * scaled_w, ((y_min * scaled_h)+(y_max * scaled_h))/2), str(number)) #number
+                    self.painterInstance.drawText(
+                        QPoint(x_min * scaled_w, ((y_max * scaled_h))), str(label))  # class
 
                     number += 1
 
