@@ -27,11 +27,12 @@ WIDTH = 1000
 HEIGHT = 800
 TEXT = "None"
 flag = False
+before_flag = False
 dirName = "./a"
 num = []
 Resume_image = ".test.jpg"
 BOOK_MARK = False
-
+TOTAL = 0
 
 class Thread(QThread):
     threadEvent_check = pyqtSignal(int)
@@ -49,10 +50,12 @@ class Thread(QThread):
     def run(self):
         global dirName
         global flag
+        global before_flag
         global num
         global Resume_image
         global BOOK_MARK
         global TEXT
+        global TOTAL
         #image dir
         image_dir = dirName+ "/image/"
         xml_dir =  dirName + "/xml/"
@@ -107,6 +110,7 @@ class Thread(QThread):
                             self.threadEvent_check.emit(int(number))
                             time.sleep(0.1)
                             self.parse_xml(xml_file,image_file,num)
+                            TOTAL = TOTAL + 1
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -150,6 +154,7 @@ class Thread(QThread):
                             self.threadEvent_check.emit(int(number))
                             time.sleep(0.1)
                             self.parse_xml(xml_file,image_file,num)
+                            TOTAL = TOTAL + 1
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -299,6 +304,14 @@ class MyApp(QMainWindow):
         btn.resize(WIDTH,100)
         btn.clicked.connect(self.flag)
 
+        #button for save & next
+        btn_before = QPushButton('Before', self)
+        btn_before.setToolTip('This is a <b>Before button</b> widget')
+        btn_before.move(WIDTH+30, HEIGHT + 50)
+        btn_before.resize(100,100)
+        btn_before.clicked.connect(self.before)
+
+
         #for warning
         label1 = QLabel('체크하면 해당 라벨은 삭제됩니다.', self)
         label1.move(1200,30)
@@ -339,6 +352,10 @@ class MyApp(QMainWindow):
     def flag(self):
         global flag
         flag = True
+
+    def before(self):
+        global before_flag
+        before_flag = True
 
     def delete_resume(self):
         if os.path.isfile("resume.txt"):
@@ -388,6 +405,8 @@ class MyApp(QMainWindow):
         reply = QMessageBox.question(self, 'Message', quit_msg, QMessageBox.Yes, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
+            global TOTAL
+            print("TOTAL: ",TOTAL)
             # 멀티쓰레드를 종료하는 stop 메소드를 실행함
             if self.x.isRunning():
                 self.x.stop()
