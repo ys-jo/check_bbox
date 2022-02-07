@@ -23,8 +23,8 @@ import xml.etree.ElementTree as ET
 import time
 
 #전역변수
-WIDTH = 1000
-HEIGHT = 800
+WIDTH = 2560 #1920
+HEIGHT = 1440 #1080
 TEXT = "None"
 flag = False
 before_flag = False
@@ -264,25 +264,25 @@ class MyApp(QMainWindow):
 
         #bookmark
         label2 = QLabel('이동하고싶은 이미지 제목을 입력하시오.', self)
-        label2.move(1300,780)
-        label2.resize(250,20)
+        label2.move(WIDTH*0.88,HEIGHT*0.8)
+        label2.resize(WIDTH*0.12,HEIGHT*0.02)
         self.result = QLabel('', self)
-        self.result.move(1300,835)
-        self.result.resize(250,20)
+        self.result.move(WIDTH*0.88,HEIGHT*0.85)
+        self.result.resize(WIDTH*0.1,HEIGHT*0.05)
         self.bookmark_line = QLineEdit(self)
-        self.bookmark_line.move(1300, 800)
-        self.bookmark_line.resize(200,30)
+        self.bookmark_line.move(WIDTH*0.88, HEIGHT*0.82)
+        self.bookmark_line.resize(WIDTH*0.1,HEIGHT*0.03)
         self.button = QPushButton(self)
-        self.button.move(1520, 800)
+        self.button.move(WIDTH*0.98, HEIGHT*0.82)
         self.button.setText('go')
-        self.button.resize(40, 30)
+        self.button.resize(WIDTH*0.02, HEIGHT*0.03)
         self.button.clicked.connect(self.button_event)
 
         #delete resume file
         btn2 = QPushButton('Delete resume', self)
         btn2.setToolTip('This is a <b>delete resume information button</b> widget')
-        btn2.move(1300, 860)
-        btn2.resize(200,70)
+        btn2.move(WIDTH*0.88, HEIGHT*0.88)
+        btn2.resize(WIDTH*0.1,HEIGHT*0.05)
         btn2.clicked.connect(self.delete_resume)
 
         ##status bar
@@ -290,31 +290,23 @@ class MyApp(QMainWindow):
 
         #QLabel - for loading image
         self.lbl = QLabel(self)
-        self.lbl.setGeometry(30,30,WIDTH,HEIGHT)
+        self.lbl.setGeometry(30,30,WIDTH*0.75,HEIGHT*0.8)
         self.qPixmapFileVar = QPixmap()
         self.qPixmapFileVar.load("eyenix.png")
-        self.qPixmapFileVar = self.qPixmapFileVar.scaled(WIDTH,HEIGHT)
+        self.qPixmapFileVar = self.qPixmapFileVar.scaled(WIDTH*0.75,HEIGHT*0.8)
         self.lbl.setPixmap(self.qPixmapFileVar)
         self.lbl.setAlignment(Qt.AlignCenter)
 
         #button for save & next
         btn = QPushButton('SAVE & NEXT', self)
         btn.setToolTip('This is a <b>SAVE & Next button</b> widget')
-        btn.move(30, HEIGHT + 50)
-        btn.resize(WIDTH,100)
+        btn.move(30, HEIGHT*0.85)
+        btn.resize(WIDTH*0.75,HEIGHT*0.1)
         btn.clicked.connect(self.flag)
-
-        #button for save & next
-        btn_before = QPushButton('Before', self)
-        btn_before.setToolTip('This is a <b>Before button</b> widget')
-        btn_before.move(WIDTH+30, HEIGHT + 50)
-        btn_before.resize(100,100)
-        btn_before.clicked.connect(self.before)
-
 
         #for warning
         label1 = QLabel('체크하면 해당 라벨은 삭제됩니다.', self)
-        label1.move(1200,30)
+        label1.move(WIDTH*0.8, 30)
         label1.resize(300,20)
 
         #for thread
@@ -323,11 +315,11 @@ class MyApp(QMainWindow):
         #for checkbox(label)
         for i in range(0, 22):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
-            globals()['self.cb_{}'.format(i)].move(1200, 50 + i * 40)
+            globals()['self.cb_{}'.format(i)].move(WIDTH*0.8, 50 + i * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
         for i in range(22, 40):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
-            globals()['self.cb_{}'.format(i)].move(1300, 50 + (i-22) * 40)
+            globals()['self.cb_{}'.format(i)].move(WIDTH*0.9, 50 + (i-22) * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
 
         #for qthread signal
@@ -338,7 +330,7 @@ class MyApp(QMainWindow):
         #for main GUI
         self.setWindowTitle('xml_tool')
         self.setWindowIcon(QIcon('eyenix.png'))
-        self.setFixedSize(1600, 1000)
+        self.setFixedSize(WIDTH, HEIGHT)
         self.center()
         self.show()
 
