@@ -35,6 +35,7 @@ num = []
 Resume_image = ".test.jpg"
 BOOK_MARK = False
 TOTAL = 0
+i = 0
 
 class Thread(QThread):
     threadEvent_processbar = pyqtSignal(int)
@@ -42,6 +43,7 @@ class Thread(QThread):
     threadEvent_reset = pyqtSignal()
     threadEvent_exit = pyqtSignal()
     threadEvent_processbar_check = pyqtSignal(str)
+    threadEvent_processbar_check2 = pyqtSignal()
 
     def __init__(self, parent, lbl):
         super().__init__(parent)
@@ -81,6 +83,7 @@ class Thread(QThread):
             Resume_image = f.readline()
             self.resume = 1
             f.close()
+
         while(self.power):
             for image in self.image_list:
                 #resume
@@ -139,7 +142,7 @@ class Thread(QThread):
                     #draw rectangle
                     self.painterInstance = QPainter(qPixmapFileVar)
                     self.penRectangle = QPen(Qt.red)
-                    self.penRectangle.setWidth(1)
+                    self.penRectangle.setWidth(3)
                     self.painterInstance.setPen(self.penRectangle)
 
                     number = self.parse_xml(xml_file,image_file)
@@ -161,7 +164,7 @@ class Thread(QThread):
                             time.sleep(0.1)#for sync global variable
                             self.parse_xml(xml_file,image_file,num)
                             TOTAL = TOTAL + 1
-                            self.threadEvent_processbar_check.emit(str(image))
+                            self.threadEvent_processbar_check2.emit()
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -344,6 +347,7 @@ class MyApp(QMainWindow):
         self.x.threadEvent_reset.connect(self.threadEventHandler_reset)
         self.x.threadEvent_exit.connect(self.threadEventHandler_exit)
         self.x.threadEvent_processbar_check.connect(self.threadEventHandler_progress_check)
+        self.x.threadEvent_processbar_check2.connect(self.threadEventHandler_progress_check2)
 
         #for main GUI
         self.setWindowTitle('xml_tool')
@@ -389,6 +393,7 @@ class MyApp(QMainWindow):
 
     def threadEventHandler_progress_check(self,name):
         #progress bar
+        global i
         image_dir = self.dir + "/image/"
         image_list = os.listdir(image_dir)
         i = 0
@@ -399,6 +404,11 @@ class MyApp(QMainWindow):
                 break
             i += 1
 
+    def threadEventHandler_progress_check2(self):
+        #progress bar
+        global i
+        i += 1
+        self.pbar.setValue(i)
 
 
     def threadEventHandler_reset(self):
