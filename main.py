@@ -29,6 +29,7 @@ WIDTH = 2560 #1920
 HEIGHT = 1440 #1080
 TEXT = "None"
 flag = False
+FLAG2 = False
 before_flag = False
 dirName = "./a"
 num = []
@@ -62,6 +63,7 @@ class Thread(QThread):
         global BOOK_MARK
         global TEXT
         global TOTAL
+        global FLAG2
         #image dir
         self.image_dir = dirName+ "/image/"
         self.xml_dir =  dirName + "/xml/"
@@ -115,6 +117,9 @@ class Thread(QThread):
                                 break
                             else:
                                 BOOK_MARK = False
+                        if FLAG2 is True:
+                            self.update_image(xml_file,image_file, num)
+                            FLAG2 = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
                             time.sleep(0.1) #for sync global variable
@@ -161,6 +166,9 @@ class Thread(QThread):
                                 break
                             else:
                                 BOOK_MARK = False
+                        if FLAG2 is True:
+                            self.update_image(xml_file,image_file, num)
+                            FLAG2 = False
                         if flag is True:
                             self.threadEvent_check.emit(int(number))
                             time.sleep(0.1)#for sync global variable
@@ -206,6 +214,51 @@ class Thread(QThread):
         print(image_file)
         return self.qPixmapFileVar
 
+    def update_image(self,xml_file,image_file,num = []):
+        # parsing xml file in object inform
+        qPixmapFileVar = self.loadImageFromFile(image_file)
+        # draw rectangle
+        self.painterInstance = QPainter(qPixmapFileVar)
+        self.penRectangle = QPen(Qt.red)
+        self.penRectangle.setWidth(3)
+        self.painterInstance.setPen(self.penRectangle)
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        size = root.find('size')
+        width = size.find('width').text
+        height = size.find('height').text
+        scaled_w = WIDTH*0.75 / float(width)
+        scaled_h = HEIGHT*0.75 / float(height)
+        objs = root.findall('object')
+        number = 0
+        for bboxs in objs:
+            if number in num:
+                root.remove(bboxs)
+                number += 1
+            else:
+                box = bboxs.findall('bndbox')
+                label = bboxs.find('name').text  #추후에 update label표시
+
+                for k in box:
+                    self.painterInstance.setPen(self.penRectangle)
+                    x_min = float(k.find("xmin").text)
+                    y_min = float(k.find("ymin").text)
+                    x_max = float(k.find("xmax").text)
+                    y_max = float(k.find("ymax").text)
+                    self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
+                                              int((y_max - y_min) * scaled_h))
+                    self.painterInstance.setPen(QColor(0,51,255))
+                    self.painterInstance.setFont(QFont('Arial',10))
+                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+2, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
+                    self.painterInstance.drawText(
+                        QPoint(int(x_min * scaled_w), int(y_max * scaled_h)), str(label))  # class
+
+                    number += 1
+
+        self.painterInstance.end()
+        self.lbl.setPixmap(self.qPixmapFileVar)
+        self.lbl.setAlignment(Qt.AlignCenter)
+
     def parse_xml(self,xml_file, image_file, num = []):
         # parsing xml file in object inform
         tree = ET.parse(xml_file)
@@ -235,9 +288,9 @@ class Thread(QThread):
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
                                               int((y_max - y_min) * scaled_h))
-                    self.painterInstance.setPen(QColor(0,0,255))
-                    self.painterInstance.setFont(QFont('Arial',15))
-                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+1, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
+                    self.painterInstance.setPen(QColor(0,51,255))
+                    self.painterInstance.setFont(QFont('Arial',10))
+                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+2, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
                     self.painterInstance.drawText(
                         QPoint(int(x_min * scaled_w), int(y_max * scaled_h)), str(label))  # class
 
@@ -338,10 +391,14 @@ class MyApp(QMainWindow):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
             globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.9), 50 + (i-22) * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
+
+        for i in range(0,40):
+            globals()['self.cb_{}'.format(i)].stateChanged.connect(self.change)
         globals()['self.cb_all'] = QCheckBox("all deleted", self)
         globals()['self.cb_all'].move(int(WIDTH * 0.8), 50 + 23 * 40)
         globals()['self.cb_all'].resize(100, 30)
-
+        globals()['self.cb_all'].stateChanged.connect(self.change
+                                                      )
         #for progress bar
         self.pbar = QProgressBar(self)
         self.pbar.move(30, int(HEIGHT*0.91))
@@ -361,6 +418,19 @@ class MyApp(QMainWindow):
         self.setFixedSize(WIDTH, HEIGHT)
         self.center()
         self.show()
+
+    def change(self):
+        global num
+        global FLAG2
+        num = []
+        for i in range(0, 40):
+            if globals()['self.cb_{}'.format(i)].isChecked():
+                num.append(i)
+        if globals()['self.cb_all'].isChecked():
+            for i in range(0, 40):
+                num.append(i)
+        FLAG2 = True
+
 
     def button_event(self):
         global BOOK_MARK
@@ -448,7 +518,11 @@ class MyApp(QMainWindow):
         global dirName
         global Resume_image
         dirName = QFileDialog.getExistingDirectory(self, self.tr("Open Data files"), "./", QFileDialog.ShowDirsOnly)
+
         self.dir = dirName
+        image_dir = self.dir + "/image/"
+        if self.image_list == 0:
+            self.image_list = os.listdir(image_dir)
         Resume_image = dirName
         self.statusBar().showMessage(dirName)
         self.x.start()
