@@ -44,6 +44,7 @@ class Thread(QThread):
     threadEvent_reset = pyqtSignal(int)
     threadEvent_exit = pyqtSignal()
     threadEvent_processbar_check = pyqtSignal(str)
+    threadEvent_image_name = pyqtSignal(str)
     threadEvent_processbar_check2 = pyqtSignal()
 
     def __init__(self, parent, lbl):
@@ -93,6 +94,7 @@ class Thread(QThread):
                     self.check = 1
                     num = []
                     image_file = self.image_dir + image
+                    self.threadEvent_image_name.emit(str(image_file))
                     xml_file = self.xml_dir + image[:-3] + "xml"
                     qPixmapFileVar = self.loadImageFromFile(image_file)
 
@@ -144,6 +146,7 @@ class Thread(QThread):
                     image_file = self.image_dir + image
                     xml_file = self.xml_dir + image[:-3] + "xml"
                     qPixmapFileVar = self.loadImageFromFile(image_file)
+                    self.threadEvent_image_name.emit(str(image_file))
 
                     #draw rectangle
                     self.painterInstance = QPainter(qPixmapFileVar)
@@ -367,6 +370,11 @@ class MyApp(QMainWindow):
         self.lbl.setPixmap(self.qPixmapFileVar)
         self.lbl.setAlignment(Qt.AlignCenter)
 
+        #image name
+        self.name = QLabel(self)
+        self.name.move(30, int(HEIGHT*0.81))
+        self.name.resize(int(WIDTH*0.75), int(HEIGHT*0.03))
+
         #button for save & next
         btn = QPushButton('SAVE & NEXT', self)
         btn.setToolTip('This is a <b>SAVE & Next button</b> widget')
@@ -411,6 +419,7 @@ class MyApp(QMainWindow):
         self.x.threadEvent_exit.connect(self.threadEventHandler_exit)
         self.x.threadEvent_processbar_check.connect(self.threadEventHandler_progress_check)
         self.x.threadEvent_processbar_check2.connect(self.threadEventHandler_progress_check2)
+        self.x.threadEvent_image_name.connect(self.threadEventHandler_image_name)
 
         #for main GUI
         self.setWindowTitle('xml_tool')
@@ -418,6 +427,9 @@ class MyApp(QMainWindow):
         self.setFixedSize(WIDTH, HEIGHT)
         self.center()
         self.show()
+
+    def threadEventHandler_image_name(self,name):
+        self.name.setText(name)
 
     def change(self):
         global num
