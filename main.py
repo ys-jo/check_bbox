@@ -214,7 +214,7 @@ class Thread(QThread):
         self.qPixmapFileVar = QPixmap()
         self.qPixmapFileVar.load(image_file)
         self.qPixmapFileVar = self.qPixmapFileVar.scaled(int(WIDTH*0.75), int(HEIGHT*0.75))
-        print(image_file)
+        #print(image_file)
         return self.qPixmapFileVar
 
     def update_image(self,xml_file,image_file,num = []):
@@ -250,7 +250,7 @@ class Thread(QThread):
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
                                               int((y_max - y_min) * scaled_h))
-                    self.painterInstance.setPen(QColor(0,51,255))
+                    #self.painterInstance.setPen(QColor(0,51,255))
                     self.painterInstance.setFont(QFont('Arial',10))
                     self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+2, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
                     self.painterInstance.drawText(
@@ -291,7 +291,7 @@ class Thread(QThread):
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
                                               int((y_max - y_min) * scaled_h))
-                    self.painterInstance.setPen(QColor(0,51,255))
+                    #self.painterInstance.setPen(QColor(0,51,255))
                     self.painterInstance.setFont(QFont('Arial',10))
                     self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+2, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
                     self.painterInstance.drawText(
