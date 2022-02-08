@@ -40,7 +40,7 @@ i = 0
 class Thread(QThread):
     threadEvent_processbar = pyqtSignal(int)
     threadEvent_check = pyqtSignal(int)
-    threadEvent_reset = pyqtSignal()
+    threadEvent_reset = pyqtSignal(int)
     threadEvent_exit = pyqtSignal()
     threadEvent_processbar_check = pyqtSignal(str)
     threadEvent_processbar_check2 = pyqtSignal()
@@ -101,6 +101,7 @@ class Thread(QThread):
                     self.painterInstance.setPen(self.penRectangle)
 
                     number = self.parse_xml(xml_file,image_file)
+                    self.threadEvent_reset.emit(int(number))
 
                     self.lbl.setPixmap(self.qPixmapFileVar)
                     self.lbl.setAlignment(Qt.AlignCenter)
@@ -122,7 +123,7 @@ class Thread(QThread):
                             self.threadEvent_processbar_check.emit(str(image))
                             break
                     BOOK_MARK = False
-                    self.threadEvent_reset.emit()
+                    #self.threadEvent_reset.emit()
                     flag = False
                     if self.power == False:
                         #exit thread
@@ -146,6 +147,7 @@ class Thread(QThread):
                     self.painterInstance.setPen(self.penRectangle)
 
                     number = self.parse_xml(xml_file,image_file)
+                    self.threadEvent_reset.emit(int(number))
 
                     self.lbl.setPixmap(self.qPixmapFileVar)
                     self.lbl.setAlignment(Qt.AlignCenter)
@@ -167,7 +169,7 @@ class Thread(QThread):
                             self.threadEvent_processbar_check2.emit()
                             break
                     BOOK_MARK = False
-                    self.threadEvent_reset.emit()
+                    #self.threadEvent_reset.emit()
                     flag = False
                     if self.power == False:
                         #exit thread
@@ -226,13 +228,16 @@ class Thread(QThread):
                 label = bboxs.find('name').text  #추후에 update label표시
 
                 for k in box:
+                    self.painterInstance.setPen(self.penRectangle)
                     x_min = float(k.find("xmin").text)
                     y_min = float(k.find("ymin").text)
                     x_max = float(k.find("xmax").text)
                     y_max = float(k.find("ymax").text)
                     self.painterInstance.drawRect(int(x_min * scaled_w), int(y_min * scaled_h), int((x_max - x_min) * scaled_w),
                                               int((y_max - y_min) * scaled_h))
-                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w), int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
+                    self.painterInstance.setPen(QColor(0,0,255))
+                    self.painterInstance.setFont(QFont('Arial',15))
+                    self.painterInstance.drawText(QPoint(int(x_min * scaled_w)+1, int(((y_min * scaled_h)+(y_max * scaled_h))/2)), str(number)) #number
                     self.painterInstance.drawText(
                         QPoint(int(x_min * scaled_w), int(y_max * scaled_h)), str(label))  # class
 
@@ -263,6 +268,7 @@ class MyApp(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        self.image_list = 0
         ##MENU BAR
         loadingAction = QAction(QIcon('load.png'), 'load', self)
         loadingAction.setShortcut('Ctrl+L')
@@ -395,9 +401,10 @@ class MyApp(QMainWindow):
         #progress bar
         global i
         image_dir = self.dir + "/image/"
-        image_list = os.listdir(image_dir)
+        if self.image_list == 0:
+            self.image_list = os.listdir(image_dir)
         i = 0
-        for image in image_list:
+        for image in self.image_list:
             if image == name:
                 print(i)
                 self.pbar.setValue(i)
@@ -411,12 +418,17 @@ class MyApp(QMainWindow):
         self.pbar.setValue(i)
 
 
-    def threadEventHandler_reset(self):
+    def threadEventHandler_reset(self, number):
         for i in range(0, 40):
             if(globals()['self.cb_{}'.format(i)].isChecked() == True):
                 globals()['self.cb_{}'.format(i)].toggle()
             if(globals()['self.cb_all'].isChecked() == True):
                 globals()['self.cb_all'].toggle()
+        for i in range(0,number):
+            globals()['self.cb_{}'.format(i)].setEnabled(True)
+        for i in range(number,40):
+            globals()['self.cb_{}'.format(i)].setEnabled(False)
+
 
     def threadEventHandler_progress(self,number):
         self.max = number
