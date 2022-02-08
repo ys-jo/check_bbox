@@ -270,7 +270,7 @@ class Thread(QThread):
         scaled_h = HEIGHT*0.75 / float(height)
         objs = root.findall('object')
         number = 0
-        if not num == [-1]:
+        if not num == []:
             print("delete label:", num)
         for bboxs in objs:
             if number in num:
