@@ -6,6 +6,7 @@
 label수정 가능하도록?
 코드정리(필요없는 코드 삭제 및 합치기)
 global변수 제거
+얼마나 진행되었는지 check용도
 etc...
 
 추가된 기능
@@ -36,9 +37,11 @@ BOOK_MARK = False
 TOTAL = 0
 
 class Thread(QThread):
+    threadEvent_processbar = pyqtSignal(int)
     threadEvent_check = pyqtSignal(int)
     threadEvent_reset = pyqtSignal()
     threadEvent_exit = pyqtSignal()
+    threadEvent_processbar_check = pyqtSignal(str)
 
     def __init__(self, parent, lbl):
         super().__init__(parent)
@@ -70,6 +73,7 @@ class Thread(QThread):
 
         #image file list
         self.image_list = os.listdir(self.image_dir)
+        self.threadEvent_processbar.emit(int(len(self.image_list)))
 
         #for resume
         if os.path.isfile("resume.txt"):
@@ -90,7 +94,7 @@ class Thread(QThread):
                     #draw rectangle
                     self.painterInstance = QPainter(qPixmapFileVar)
                     self.penRectangle = QPen(Qt.red)
-                    self.penRectangle.setWidth(1)
+                    self.penRectangle.setWidth(3)
                     self.painterInstance.setPen(self.penRectangle)
 
                     number = self.parse_xml(xml_file,image_file)
@@ -112,6 +116,7 @@ class Thread(QThread):
                             time.sleep(0.1) #for sync global variable
                             self.parse_xml(xml_file,image_file,num)
                             TOTAL = TOTAL + 1
+                            self.threadEvent_processbar_check.emit(str(image))
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -156,6 +161,7 @@ class Thread(QThread):
                             time.sleep(0.1)#for sync global variable
                             self.parse_xml(xml_file,image_file,num)
                             TOTAL = TOTAL + 1
+                            self.threadEvent_processbar_check.emit(str(image))
                             break
                     BOOK_MARK = False
                     self.threadEvent_reset.emit()
@@ -303,7 +309,7 @@ class MyApp(QMainWindow):
         btn = QPushButton('SAVE & NEXT', self)
         btn.setToolTip('This is a <b>SAVE & Next button</b> widget')
         btn.move(30, int(HEIGHT*0.85))
-        btn.resize(int(WIDTH*0.75), int(HEIGHT*0.1))
+        btn.resize(int(WIDTH*0.75), int(HEIGHT*0.05))
         btn.clicked.connect(self.flag)
 
         #for warning
@@ -327,10 +333,17 @@ class MyApp(QMainWindow):
         globals()['self.cb_all'].move(int(WIDTH * 0.8), 50 + 23 * 40)
         globals()['self.cb_all'].resize(100, 30)
 
+        #for progress bar
+        self.pbar = QProgressBar(self)
+        self.pbar.move(30, int(HEIGHT*0.91))
+        self.pbar.resize(int(WIDTH*0.75), int(HEIGHT*0.02))
+
         #for qthread signal
         self.x.threadEvent_check.connect(self.threadEventHandler_check)
+        self.x.threadEvent_processbar.connect(self.threadEventHandler_progress)
         self.x.threadEvent_reset.connect(self.threadEventHandler_reset)
         self.x.threadEvent_exit.connect(self.threadEventHandler_exit)
+        self.x.threadEvent_processbar_check.connect(self.threadEventHandler_progress_check)
 
         #for main GUI
         self.setWindowTitle('xml_tool')
@@ -374,12 +387,30 @@ class MyApp(QMainWindow):
             for i in range(0, number + 1):
                 num.append(i)
 
+    def threadEventHandler_progress_check(self,name):
+        #progress bar
+        image_dir = self.dir + "/image/"
+        image_list = os.listdir(image_dir)
+        i = 0
+        for image in image_list:
+            if image == name:
+                print(i)
+                self.pbar.setValue(i)
+                break
+            i += 1
+
+
+
     def threadEventHandler_reset(self):
         for i in range(0, 40):
             if(globals()['self.cb_{}'.format(i)].isChecked() == True):
                 globals()['self.cb_{}'.format(i)].toggle()
             if(globals()['self.cb_all'].isChecked() == True):
                 globals()['self.cb_all'].toggle()
+
+    def threadEventHandler_progress(self,number):
+        self.max = number
+        self.pbar.setRange(0,self.max)
 
     def threadEventHandler_exit(self):
         if self.x.isRunning():
@@ -395,6 +426,7 @@ class MyApp(QMainWindow):
         global dirName
         global Resume_image
         dirName = QFileDialog.getExistingDirectory(self, self.tr("Open Data files"), "./", QFileDialog.ShowDirsOnly)
+        self.dir = dirName
         Resume_image = dirName
         self.statusBar().showMessage(dirName)
         self.x.start()
