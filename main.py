@@ -391,19 +391,19 @@ class MyApp(QMainWindow):
         self.x = Thread(self, self.lbl)
 
         #for checkbox(label)
-        for i in range(0, 22):
+        for i in range(0, 26):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
             globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.8), 50 + i * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
-        for i in range(22, 40):
+        for i in range(26, 51):
             globals()['self.cb_{}'.format(i)] = QCheckBox("label: " + str(i), self)
-            globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.9), 50 + (i-22) * 40)
+            globals()['self.cb_{}'.format(i)].move(int(WIDTH*0.9), 50 + (i-26) * 40)
             globals()['self.cb_{}'.format(i)].resize(100, 30)
 
-        for i in range(0,40):
+        for i in range(0,51):
             globals()['self.cb_{}'.format(i)].stateChanged.connect(self.change)
         globals()['self.cb_all'] = QCheckBox("all deleted", self)
-        globals()['self.cb_all'].move(int(WIDTH * 0.8), 50 + 23 * 40)
+        globals()['self.cb_all'].move(int(WIDTH * 0.8), 50 + 27 * 40)
         globals()['self.cb_all'].resize(100, 30)
         globals()['self.cb_all'].stateChanged.connect(self.change
                                                       )
@@ -435,11 +435,11 @@ class MyApp(QMainWindow):
         global num
         global FLAG2
         num = []
-        for i in range(0, 40):
+        for i in range(0, 51):
             if globals()['self.cb_{}'.format(i)].isChecked():
                 num.append(i)
         if globals()['self.cb_all'].isChecked():
-            for i in range(0, 40):
+            for i in range(0, 51):
                 num.append(i)
         FLAG2 = True
 
@@ -501,14 +501,14 @@ class MyApp(QMainWindow):
 
 
     def threadEventHandler_reset(self, number):
-        for i in range(0, 40):
+        for i in range(0, 51):
             if(globals()['self.cb_{}'.format(i)].isChecked() == True):
                 globals()['self.cb_{}'.format(i)].toggle()
             if(globals()['self.cb_all'].isChecked() == True):
                 globals()['self.cb_all'].toggle()
         for i in range(0,number):
             globals()['self.cb_{}'.format(i)].setEnabled(True)
-        for i in range(number,40):
+        for i in range(number,51):
             globals()['self.cb_{}'.format(i)].setEnabled(False)
 
 
